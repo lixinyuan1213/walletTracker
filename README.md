@@ -9,7 +9,10 @@
 
 ## 二. 开发说明
 
-使用`javalin`框架开发，数据库用mysql,端口号 7070
+- 使用`javalin`框架开发
+- 数据库用mysql
+- 将`app.setting.example`修改为`app.setting`,修改数据库配置
+- 端口号 7070，在App.java中修改
 
 ## 三.使用
 
