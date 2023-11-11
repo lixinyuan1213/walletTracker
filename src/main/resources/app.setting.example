@@ -1,0 +1,9 @@
+# 微信appid
+appId=
+# 微信secret
+secret=
+# 微信模板消息
+templateId=
+
+db_class_name=com.mysql.cj.jdbc.Driver
+db_url=jdbc:mysql://127.0.0.1:3306/wallet_tracker?characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=GMT%2B8&user=root&password=123456
