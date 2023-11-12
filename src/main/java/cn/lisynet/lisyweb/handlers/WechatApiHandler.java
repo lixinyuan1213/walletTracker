@@ -1,8 +1,11 @@
 package cn.lisynet.lisyweb.handlers;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
+import cn.lisynet.lisyweb.config.Constant;
 import cn.lisynet.lisyweb.service.UserService;
 import cn.lisynet.lisyweb.service.WalletLogService;
+import cn.lisynet.lisyweb.utils.WechatTools;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
@@ -41,38 +44,41 @@ public class WechatApiHandler implements Handler {
 
         String eventStr = Objects.toString(XmlUtil.getByXPath("//Event", docResult, XPathConstants.STRING),"");
 
-        long now = System.currentTimeMillis() / 1000;
-
         if ("text".equals(msgTypeStr)) {
-            walletLogService.addWalletLog(fromUserStr,xmlContentStr);
-            String content = "接收到信息:" + xmlContentStr;
-            ctx.result(createTextMsg(toUserStr,fromUserStr,content,now));
+            Integer commandType = parsingMsgType(xmlContentStr);
+            String rs;
+            if (Objects.equals(commandType, Constant.MSG_TYPE_IO)) {
+                rs = walletLogService.addWalletLog(fromUserStr, toUserStr, xmlContentStr);
+            } else if (Objects.equals(commandType,Constant.MSG_TYPE_STATISTICS)) {
+                rs = walletLogService.walletStatistics(fromUserStr, toUserStr, xmlContentStr);
+            } else {
+                rs = WechatTools.createTextMsg(toUserStr,fromUserStr,"消息类型不支持");
+            }
+            ctx.result(rs);
         } else {
             if ("event".equals(msgTypeStr) && "subscribe".equals(eventStr)) {
-                ctx.result(createTextMsg(toUserStr,fromUserStr,"欢迎订阅，本系统仅用于测试",now));
+                ctx.result(WechatTools.createTextMsg(toUserStr,fromUserStr,"欢迎订阅"));
             } else {
-                ctx.result(createTextMsg(toUserStr,fromUserStr,"不支持消息处理",now));
+                ctx.result(WechatTools.createTextMsg(toUserStr,fromUserStr,"不支持消息处理"));
             }
         }
     }
 
-
-
     /**
-     * 生成微信需要的xml消息
-     * @param fromUser    发送方
-     * @param toUser      接收方
-     * @param content     内容
-     * @param createTime  时间
-     * @return            xml内容
+     * 分析消息类型
+     *
+     * @param command 命令
+     * @return {@link Integer}
      */
-    private String createTextMsg(String fromUser,String toUser,String content,Long createTime){
-        return "<xml>\n" +
-                "  <ToUserName><![CDATA[" + toUser + "]]></ToUserName>\n" +
-                "  <FromUserName><![CDATA[" + fromUser + "]]></FromUserName>\n" +
-                "  <CreateTime>" + createTime + "</CreateTime>\n" +
-                "  <MsgType><![CDATA[text]]></MsgType>\n" +
-                "  <Content><![CDATA[" + content + "]]></Content>\n" +
-                "</xml>";
+    private Integer parsingMsgType(String command) {
+        // 截取前两个字符，判断是什么类型的操作，比如”收入“、”支出“、”统计“
+        String operation = StrUtil.sub(command, 0, 2);
+        if (Constant.BUSINESS_MSG_IO_EXPENSES.equals(operation) || Constant.BUSINESS_MSG_IO_INCOME.equals(operation)) {
+            return Constant.MSG_TYPE_IO;
+        } else if (Constant.STATISTICS_TYPE_COMMAND.equals(operation)) {
+            return Constant.MSG_TYPE_STATISTICS;
+        } else {
+            return Constant.MSG_TYPE_OTHER;
+        }
     }
 }

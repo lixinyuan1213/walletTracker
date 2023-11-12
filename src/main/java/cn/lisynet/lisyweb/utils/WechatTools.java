@@ -70,6 +70,23 @@ final public class WechatTools {
         }
     }
 
+    /**
+     * 生成微信需要的xml消息
+     * @param fromUser    发送方
+     * @param toUser      接收方
+     * @param content     内容
+     * @return            xml内容
+     */
+    public static String createTextMsg(String fromUser,String toUser,String content){
+        long now = System.currentTimeMillis() / 1000;
+        return "<xml>\n" +
+                "  <ToUserName><![CDATA[" + toUser + "]]></ToUserName>\n" +
+                "  <FromUserName><![CDATA[" + fromUser + "]]></FromUserName>\n" +
+                "  <CreateTime>" + now + "</CreateTime>\n" +
+                "  <MsgType><![CDATA[text]]></MsgType>\n" +
+                "  <Content><![CDATA[" + content + "]]></Content>\n" +
+                "</xml>";
+    }
 
 
 
