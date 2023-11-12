@@ -107,7 +107,7 @@ public class WalletLogService {
         UserModel userInfo = userOperation(openId);
         String income = statisticsIncome(dates[0], dates[1], userInfo.getId());
         String expenses = statisticsExpenses(dates[0], dates[1], userInfo.getId());
-        return WechatTools.createTextMsg(replyOpenid,openId,"您查询的时间段内（"+DateUtil.format(dates[0], DatePattern.NORM_DATETIME_MINUTE_PATTERN)+"-"+DateUtil.format(dates[1],DatePattern.NORM_DATETIME_MINUTE_PATTERN)+"）：收入"+income+",支出"+expenses);
+        return WechatTools.createTextMsg(replyOpenid,openId,"您查询的时间段为（"+DateUtil.format(dates[0], DatePattern.NORM_DATETIME_MINUTE_PATTERN)+"-"+DateUtil.format(dates[1],DatePattern.NORM_DATETIME_MINUTE_PATTERN)+"）。\r\n\n\n统计：收入"+income+",支出"+expenses);
     }
 
     /**
